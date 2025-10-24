@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Virtual Bank — Курсы валют и калькулятор</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f172a;           /* сланцевый фон */
+      --panel:#111827;        /* тёмная панель */
+      --muted:#94a3b8;        /* вторичный текст */
+      --text:#e5e7eb;         /* основной текст */
+      --brand:#8b5cf6;        /* акцент (фиолетовый) */
+      --success:#10b981;      /* зелёный */
+      --danger:#ef4444;       /* красный */
+      --card:#0b1220;         /* карточки */
+      --ring:#334155;         /* обводка */
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+      background: radial-gradient(1200px 800px at 80% -10%, rgba(139,92,246,.25), transparent 60%), var(--bg);
+      color:var(--text);
+    }
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+    .logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px;letter-spacing:.4px}
+    .logo-badge{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#a78bfa,#6366f1);display:grid;place-items:center;color:white;font-weight:800}
+    .pill{font-size:12px;color:var(--muted);border:1px solid var(--ring);padding:6px 10px;border-radius:999px}
+
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+    .card{background:linear-gradient(180deg,var(--card),#0a0f1a);border:1px solid var(--ring);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+
+    .title{font-weight:700;font-size:22px;margin:0 0 14px}
+
+    .tabs{display:flex;gap:8px;margin-bottom:10px}
+    .tab{padding:8px 12px;border:1px solid var(--ring);border-radius:10px;color:var(--muted);cursor:pointer;user-select:none}
+    .tab.active{background:rgba(139,92,246,.15);border-color:#6d28d9;color:#d9cdfb}
+
+    .rates{margin-top:8px;border-collapse:collapse;width:100%}
+    .rates th,.rates td{padding:12px;border-bottom:1px dashed rgba(148,163,184,.25);text-align:left}
+    .rates th{color:var(--muted);font-weight:600}
+    .flag{width:22px;height:22px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle}
+    .usd{background:url('https://flagcdn.com/us.svg') center/cover}
+    .eur{background:url('https://flagcdn.com/eu.svg') center/cover}
+    .rub{background:url('https://flagcdn.com/ru.svg') center/cover}
+    .kzt{background:url('https://flagcdn.com/kz.svg') center/cover}
+
+    .help{font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px}
+
+    .calc-row{display:flex;gap:10px;align-items:center}
+    .field{flex:1}
+    .label{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .input,select{width:100%;background:#0b1220;border:1px solid var(--ring);border-radius:12px;padding:12px 12px;color:var(--text);font-size:16px;outline: none}
+    .input:focus,select:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.25)}
+
+    .swap{width:42px;height:42px;border-radius:12px;border:1px solid var(--ring);background:transparent;color:var(--text);display:grid;place-items:center;cursor:pointer}
+    .swap:hover{border-color:#7c3aed}
+
+    .result{margin-top:14px;font-weight:700;font-size:20px}
+    .tiny{font-size:12px;color:var(--muted)}
+
+    footer{margin-top:26px;color:var(--muted);font-size:12px}
+
+    @media (max-width:860px){
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-badge">VB</div>
+        Virtual Bank
+      </div>
+      <div class="pill">Демо‑витрина • курсы фиксированы в коде</div>
+    </header>
+
+    <div class="grid">
+      <!-- Курсы валют -->
+      <section class="card" style="grid-column: span 6;">
+        <h2 class="title">Курсы валют</h2>
+        <div class="tabs">
+          <div class="tab active" id="tab-non-cash">Безналичные</div>
+          <div class="tab" id="tab-cash">Наличные</div>
+        </div>
+        <table class="rates" aria-describedby="rate-note">
+          <thead>
+            <tr>
+              <th>Валюта</th>
+              <th>Покупка</th>
+              <th>Продажа</th>
+            </tr>
+          </thead>
+          <tbody id="rates-body">
+            <!-- наполняется из JS -->
+          </tbody>
+        </table>
+        <p class="help" id="rate-note">Курс указан на <span id="asof"></span>. Курсы действительны для сумм до $1000 (эквивалент). Суммы свыше — по договорённости.</p>
+        <footer>Источник: демо‑данные, основаны на скриншоте для KGS ↔ USD/EUR/RUB/KZT. Поменяйте цифры в константе RATES для актуализации.</footer>
+      </section>
+
+      <!-- Калькулятор -->
+      <section class="card" style="grid-column: span 6;">
+        <h2 class="title">Калькулятор обмена</h2>
+
+        <div class="calc-row">
+          <div class="field">
+            <div class="label">отдаю</div>
+            <input class="input" id="give-amount" type="number" step="0.01" value="1000" />
+          </div>
+          <div class="field" style="max-width:160px">
+            <div class="label">валюта</div>
+            <select id="give-curr">
+              <option value="KGS">KGS</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="RUB">RUB</option>
+              <option value="KZT">KZT</option>
+            </select>
+          </div>
+          <button class="swap" id="swap" title="Поменять местами" aria-label="swap" type="button">⟲</button>
+          <div class="field" style="max-width:160px">
+            <div class="label">получаю</div>
+            <select id="get-curr">
+              <option value="USD">USD</option>
+              <option value="KGS">KGS</option>
+              <option value="EUR">EUR</option>
+              <option value="RUB">RUB</option>
+              <option value="KZT">KZT</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="result" id="result">—</div>
+        <div class="tiny" id="hint">Выберите валюты и введите сумму.</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // === Демо-курсы: "покупка" и "продажа" за 1 единицу иностранной валюты в сомах (KGS) ===
+    // Основаны на вашем скриншоте: USD 87.000/87.500; EUR 100.800/101.800; RUB 1.060/1.130; KZT 0.150/0.170
+    // Добавьте/обновите по мере необходимости.
+    const RATES_NON_CASH = {
+      USD: { buy: 87.000, sell: 87.500 },
+      EUR: { buy: 100.800, sell: 101.800 },
+      RUB: { buy: 1.060, sell: 1.130 },
+      KZT: { buy: 0.150, sell: 0.170 },
+    };
+    // Для примера наличные немного менее выгодны
+    const RATES_CASH = {
+      USD: { buy: 86.700, sell: 87.800 },
+      EUR: { buy: 100.400, sell: 102.200 },
+      RUB: { buy: 1.040, sell: 1.150 },
+      KZT: { buy: 0.145, sell: 0.175 },
+    };
+
+    const flags = { USD:'usd', EUR:'eur', RUB:'rub', KZT:'kzt' };
+    let activeTable = 'non-cash';
+
+    function format(n){
+      return new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(n);
+    }
+
+    function renderTable(){
+      const data = activeTable === 'non-cash' ? RATES_NON_CASH : RATES_CASH;
+      const tbody = document.querySelector('#rates-body');
+      tbody.innerHTML = '';
+      Object.entries(data).forEach(([ccy, {buy, sell}]) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="flag ${flags[ccy]}"></span>${ccy}</td>
+          <td><span style="color:var(--success)">▼</span> ${format(buy)}</td>
+          <td><span style="color:var(--danger)">▲</span> ${format(sell)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.querySelector('#asof').textContent = new Date().toLocaleString('ru-RU');
+    }
+
+    function convert(){
+      const giveAmt = parseFloat(document.querySelector('#give-amount').value || '0');
+      const give = document.querySelector('#give-curr').value;
+      const get  = document.querySelector('#get-curr').value;
+      const nonCash = activeTable === 'non-cash';
+      const rates = nonCash ? RATES_NON_CASH : RATES_CASH;
+
+      if(give === get){
+        document.querySelector('#result').textContent = format(giveAmt) + ' ' + get;
+        document.querySelector('#hint').textContent = 'Одинаковые валюты — сумма без изменений.';
+        return;
+      }
+
+      // Базовая логика: банк покупает/продаёт ИНО валюту за KGS.
+      // Когда клиент ОТДАЁТ KGS и получает, например, USD, используется цена ПРОДАЖИ банка (sell).
+      // Когда клиент ОТДАЁТ USD и получает KGS — используется цена ПОКУПКИ банка (buy).
+
+      let resultAmount = 0;
+
+      if(give === 'KGS' && rates[get]){
+        // отдаю сомы -> получаю иностранную (банк продаёт ин. валюту)
+        resultAmount = giveAmt / rates[get].sell;
+        document.querySelector('#hint').textContent = `Использована цена ПРОДАЖИ банка для ${get}.`;
+      } else if(get === 'KGS' && rates[give]){
+        // отдаю иностранную -> получаю сомы (банк покупает ин. валюту)
+        resultAmount = giveAmt * rates[give].buy;
+        document.querySelector('#hint').textContent = `Использована цена ПОКУПКИ банка для ${give}.`;
+      } else if(rates[give] && rates[get]){
+        // кросс-курс через KGS (спред учитывается обеими сторонами)
+        const kgsFromGive = giveAmt * (give === 'KGS' ? 1 : rates[give].buy);
+        resultAmount = kgsFromGive / (get === 'KGS' ? 1 : rates[get].sell);
+        document.querySelector('#hint').textContent = 'Кросс-курс рассчитан через KGS (buy → sell).';
+      } else {
+        document.querySelector('#result').textContent = 'Н/Д';
+        document.querySelector('#hint').textContent = 'Проверьте выбор валют.';
+        return;
+      }
+
+      document.querySelector('#result').textContent = `${format(resultAmount)} ${get}`;
+    }
+
+    // UI события
+    document.querySelector('#tab-non-cash').addEventListener('click', () => {
+      activeTable = 'non-cash';
+      document.querySelector('#tab-non-cash').classList.add('active');
+      document.querySelector('#tab-cash').classList.remove('active');
+      renderTable();
+      convert();
+    });
+    document.querySelector('#tab-cash').addEventListener('click', () => {
+      activeTable = 'cash';
+      document.querySelector('#tab-cash').classList.add('active');
+      document.querySelector('#tab-non-cash').classList.remove('active');
+      renderTable();
+      convert();
+    });
+
+    document.querySelector('#swap').addEventListener('click', () => {
+      const give = document.querySelector('#give-curr');
+      const get  = document.querySelector('#get-curr');
+      const tmp = give.value; give.value = get.value; get.value = tmp;
+      convert();
+    });
+
+    ['#give-amount', '#give-curr', '#get-curr'].forEach(sel =>
+      document.querySelector(sel).addEventListener('input', convert)
+    );
+
+    // Инициализация
+    renderTable();
+    convert();
+  </script>
+</body>
+</html>

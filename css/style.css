@@ -1,0 +1,222 @@
+/* Общие стили */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+}
+
+body {
+  background: #ffffff;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Шапка */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background: #0a3d62;
+  color: white;
+}
+
+header .logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+nav a {
+  margin: 0 15px;
+  text-decoration: none;
+  color: white;
+  transition: 0.3s;
+}
+
+nav a:hover {
+  color: #f1c40f;
+}
+
+.login-btn {
+  padding: 8px 16px;
+  background: #f1c40f;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 90vh;
+  background-image: url(../images/top_bg.png);
+  color: #fff;
+}
+
+.hero h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+.hero h2 {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.hero p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.hero-buttons .primary,
+.hero-buttons .secondary {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.primary {
+  background: #0a3d62;
+  color: white;
+}
+
+.secondary {
+  background: #f1c40f;
+  color: #0a3d62;
+}
+
+/* Преимущества */
+.features {
+  display: flex;
+  justify-content: space-around;
+  padding: 40px 20px;
+  background: #eaf0f6;
+}
+
+.feature {
+  font-size: 18px;
+  text-align: center;
+  width: 20%;
+}
+
+/* Продукты */
+.products {
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.products h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.product-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  background-repeat: no-repeat;
+  background-position: center center;
+  color: #fff;
+  background-image: url(../images/top_bg.png);
+}
+
+.product-card button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: #0a3d62;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* FAQ */
+.faq {
+  padding: 50px 20px;
+  background: #f8f9fa;
+  text-align: center;
+}
+
+.faq h2 {
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+.faq ul {
+  list-style: none;
+  margin-bottom: 20px;
+}
+
+.faq li {
+  margin: 10px 0;
+}
+
+.valut{
+  color: #fff;
+  font-size: 24px;
+  line-height: 20px;
+  text-decoration: none;
+  border: solid #333;
+  padding: 10px;
+  background-color: #0a3d62;
+}
+
+/* Подвал */
+footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 50px;
+  background: #0a3d62;
+  color: white;
+}
+
+footer a {
+  margin-left: 15px;
+  text-decoration: none;
+  color: #f1c40f;
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  nav {
+    margin: 10px 0;
+  }
+
+  .features {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .feature {
+    width: 100%;
+  }
+
+  .product-list {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 24px;
+  }
+
+  .hero p {
+    font-size: 14px;
+  }
+}

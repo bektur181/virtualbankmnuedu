@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Кредитный и депозитный калькулятор</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #12172b;
+      --panel-2: #0f1430;
+      --text: #e9edf5;
+      --muted: #a7b0c3;
+      --primary: #5aa9ff;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --border: #2a3154;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; background:linear-gradient(120deg, #0a0f25, #0d1433); color:var(--text); }
+    .wrap { max-width: 1100px; margin:0 auto; padding:24px; }
+    h1 { margin: 0 0 16px; font-size: clamp(22px, 3.5vw, 36px); line-height:1.2; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    .row-3 { display:grid; grid-template-columns: 2fr 1fr; gap:16px; }
+    @media (max-width: 860px){ .row, .row-3 { grid-template-columns: 1fr; } }
+
+    .card { background:linear-gradient(180deg, var(--panel), var(--panel-2)); border:1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .card h2 { font-size: 18px; margin:0 0 12px; }
+    .card-body { padding:16px; }
+    .muted { color: var(--muted); font-size: 13px; }
+
+    label { display:block; font-size: 13px; color:var(--muted); margin: 6px 0 6px; }
+    input, select, button { width:100%; height: 46px; border-radius: 12px; border:1px solid var(--border); background:#0b1130; color:var(--text); padding: 0 12px; font-size: 15px; }
+    input::placeholder { color:#60709c; }
+    .btn { cursor:pointer; border:1px solid var(--border); background: #11183d; transition:.2s transform, .2s opacity; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: linear-gradient(180deg, #3d7bfd, #2456d9); border-color:#2f58c7; }
+    .btn.success { background: linear-gradient(180deg, #26d07c, #16a34a); border-color:#16924a; }
+    .btn.ghost { background:transparent; }
+
+    .flex { display:flex; gap:10px; flex-wrap: wrap; }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width: 560px){ .grid-2 { grid-template-columns: 1fr; } }
+
+    .kpi { display:flex; align-items:center; justify-content:space-between; padding:12px; border:1px solid var(--border); border-radius: 12px; background:#0a0f2a; font-size: clamp(16px, 3vw, 20px); }
+
+    table { width:100%; border-collapse: collapse; font-size: 14px; }
+    thead th { position: sticky; top:0; background:#0c1438; z-index:1; }
+    th, td { padding:10px; text-align:right; border-bottom: 1px solid var(--border); }
+    td:first-child, th:first-child { text-align:left; }
+    .table-wrap { max-height: 60vh; overflow:auto; border:1px solid var(--border); border-radius: 14px; }
+
+    .tabs { display:flex; border:1px solid var(--border); border-radius: 14px; overflow:hidden; }
+    .tabs button { flex:1; height:44px; background:#0b1130; color:var(--text); border:0; font-weight:600; }
+    .tabs button.active { background: linear-gradient(180deg, #1a2658, #10183f); color:#cfe2ff; }
+
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap: wrap; }
+    .select-inline { display:flex; align-items:center; gap:8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>Кредитный и депозитный калькулятор</h1>
+      <div class="select-inline">
+        <label for="currency" class="muted">Валюта:</label>
+        <select id="currency">
+          <option value="KGS" selected>KGS</option>
+          <option value="USD">USD</option>
+          <option value="KZT">KZT</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Переключатель калькуляторов">
+      <button id="tab-loan" class="active" role="tab" aria-controls="panel-loan" aria-selected="true">Кредит</button>
+      <button id="tab-dep" role="tab" aria-controls="panel-dep" aria-selected="false">Депозит</button>
+    </div>
+
+    <!-- LOAN PANEL -->
+    <section id="panel-loan" role="tabpanel" aria-labelledby="tab-loan" style="margin-top:16px;">
+      <div class="row-3">
+        <div class="card">
+          <div class="card-body">
+            <h2>Параметры кредита</h2>
+            <div class="grid-2">
+              <div>
+                <label>Сумма кредита</label>
+                <input id="loan-amount" type="text" inputmode="decimal" placeholder="например, 500000" value="500000" />
+              </div>
+              <div>
+                <label>Ставка, % годовых</label>
+                <input id="loan-rate" type="text" inputmode="decimal" placeholder="например, 18" value="18" />
+              </div>
+              <div>
+                <label>Срок, лет</label>
+                <input id="loan-years" type="text" inputmode="decimal" placeholder="например, 3" value="3" />
+              </div>
+              <div>
+                <label>Ежемесячный досрочный платёж (доп.)</label>
+                <input id="loan-extra" type="text" inputmode="decimal" placeholder="0" value="0" />
+              </div>
+            </div>
+            <div class="flex" style="margin-top:12px;">
+              <button id="btn-loan-calc" class="btn primary">Рассчитать</button>
+              <button id="btn-loan-toggle" class="btn ghost">Показать график</button>
+              <button id="btn-loan-csv" class="btn">Скачать график (CSV)</button>
+            </div>
+            <p class="muted" style="margin-top:8px;">Расчёт аннуитетом. Досрочные платежи уменьшают срок.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h2>Итоги</h2>
+            <div class="kpi"><span>Ежемесячный платёж</span><strong id="loan-kpi-monthly">—</strong></div>
+            <div class="kpi" style="margin-top:8px;"><span>Переплата по процентам</span><strong id="loan-kpi-overpay">—</strong></div>
+            <div class="kpi" style="margin-top:8px;"><span>Итоговая сумма выплат</span><strong id="loan-kpi-total">—</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="loan-table-card" class="card" style="margin-top:16px; display:none;">
+        <div class="card-body">
+          <h2>График платежей</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Месяц</th>
+                  <th>Платёж</th>
+                  <th>Основной долг</th>
+                  <th>Проценты</th>
+                  <th>Остаток</th>
+                </tr>
+              </thead>
+              <tbody id="loan-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEPOSIT PANEL -->
+    <section id="panel-dep" role="tabpanel" aria-labelledby="tab-dep" hidden style="margin-top:16px;">
+      <div class="row">
+        <div class="card">
+          <div class="card-body">
+            <h2>Параметры депозита</h2>
+            <div class="grid-2">
+              <div>
+                <label>Начальный взнос</label>
+                <input id="dep-initial" type="text" inputmode="decimal" value="200000" />
+              </div>
+              <div>
+                <label>Ставка, % годовых</label>
+                <input id="dep-rate" type="text" inputmode="decimal" value="12" />
+              </div>
+              <div>
+                <label>Срок, лет</label>
+                <input id="dep-years" type="text" inputmode="decimal" value="2" />
+              </div>
+              <div>
+                <label>Ежемесячное пополнение</label>
+                <input id="dep-monthly" type="text" inputmode="decimal" value="5000" />
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:8px;">
+              <div>
+                <label>Капитализация</label>
+                <select id="dep-comp">
+                  <option value="monthly" selected>Ежемесячно</option>
+                  <option value="daily">Ежедневно</option>
+                  <option value="annual">Ежегодно</option>
+                </select>
+              </div>
+              <div style="display:flex; align-items:flex-end;">
+                <button id="btn-dep-calc" class="btn success" style="width:100%;">Рассчитать</button>
+              </div>
+            </div>
+            <p class="muted" style="margin-top:8px;">Пополнение учитывается в конце каждого месяца.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h2>Итоги</h2>
+            <div class="kpi"><span>Итого внесено</span><strong id="dep-kpi-invested">—</strong></div>
+            <div class="kpi" style="margin-top:8px;"><span>Доход (проценты)</span><strong id="dep-kpi-profit">—</strong></div>
+            <div class="kpi" style="margin-top:8px;"><span>Будущая стоимость</span><strong id="dep-kpi-fv">—</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-body">
+          <h2>Примечание</h2>
+          <p class="muted">Это ориентировочный расчёт, условия банка могут отличаться.</p>
+        </div>
+      </div>
+    </section>
+
+    <p class="muted" style="margin-top:16px;">⚠️ Примечание: информация носит справочный характер и не является финансовой консультацией.</p>
+  </div>
+
+  <script>
+    // ---------- Helpers ----------
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    function parseNum(v, fallback=0){ if(v==null) return fallback; const n = Number(String(v).replace(/\s|_/g, '').replace(',', '.')); return Number.isFinite(n)? n : fallback; }
+    function curSymbol(cur){ return ({KGS:' сом', USD:' $', KZT:' ₸'})[cur] || ' '; }
+    function fmt(n, cur){
+      if(!Number.isFinite(n)) return '—';
+      const formatted = new Intl.NumberFormat('ru-RU', { minimumFractionDigits:2, maximumFractionDigits:2 }).format(n);
+      return formatted + (cur ? curSymbol(cur) : '');
+    }
+
+    // ---------- Loan math ----------
+    function monthlyPayment(P, annualRate, months){
+      const r = annualRate/12/100;
+      if(months<=0) return 0;
+      if(r===0) return P/months;
+      return (P*r)/(1 - Math.pow(1+r, -months));
+    }
+    function buildAmSchedule(P, annualRate, months, extra){
+      const r = annualRate/12/100;
+      const base = monthlyPayment(P, annualRate, months);
+      let bal = P; let i=1; const rows=[]; let total=0;
+      while(bal>0 && i <= months+1200){
+        const interest = r*bal;
+        let pay = base + extra;
+        if(r===0){ pay = Math.min(bal, base+extra); }
+        else if(pay <= interest){ pay = interest + 1e-8; }
+        let principal = pay - interest;
+        if(principal > bal){ principal = bal; pay = interest + principal; }
+        bal -= principal; total += pay;
+        rows.push({month:i, payment:pay, principal, interest, balance: Math.max(0, bal)});
+        if(bal <= 0.01) break; i++;
+      }
+      return {rows, base, total};
+    }
+
+    // ---------- Deposit math ----------
+    function futureValue({P, annualRate, months, monthlyContribution=0, compound='monthly'}){
+      const rAnnual = annualRate/100; let nPerYear = 12; if(compound==='daily') nPerYear=365; if(compound==='annual') nPerYear=1;
+      const r = rAnnual/nPerYear; const tYears = months/12; const periods = Math.round(nPerYear*tYears);
+      const fvPrincipal = P*Math.pow(1+r, periods);
+      let fvContrib = 0;
+      if(monthlyContribution>0){
+        const growSteps = nPerYear/12; let bal=0; const fullMonths = months;
+        for(let m=1; m<=fullMonths; m++){
+          for(let s=0; s<growSteps; s++){ bal *= (1+r); }
+          bal += monthlyContribution;
+        }
+        const remaining = periods - Math.floor(growSteps*fullMonths);
+        for(let k=0;k<remaining;k++){ bal *= (1+r); }
+        fvContrib = bal;
+      }
+      const FV = fvPrincipal + fvContrib; const invested = P + monthlyContribution*months; return {FV, invested, profit: FV - invested};
+    }
+
+    // ---------- UI Logic ----------
+    const state = { showSchedule: false };
+
+    function calcLoan(){
+      const cur = $('#currency').value;
+      const P = parseNum($('#loan-amount').value);
+      const rate = parseNum($('#loan-rate').value);
+      const years = parseNum($('#loan-years').value);
+      const extra = parseNum($('#loan-extra').value);
+      const months = Math.round(years*12);
+      const sch = buildAmSchedule(P, rate, months, extra);
+      const totalInterest = Math.max(0, sch.total - P);
+
+      $('#loan-kpi-monthly').textContent = fmt(sch.base + extra, cur);
+      $('#loan-kpi-overpay').textContent = fmt(totalInterest, cur);
+      $('#loan-kpi-total').textContent = fmt(sch.total, cur);
+
+      // fill table (lazy if hidden)
+      if(state.showSchedule){
+        const tb = $('#loan-tbody'); tb.innerHTML = '';
+        const frag = document.createDocumentFragment();
+        sch.rows.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${r.month}</td>
+                          <td>${fmt(r.payment, cur)}</td>
+                          <td>${fmt(r.principal, cur)}</td>
+                          <td>${fmt(r.interest, cur)}</td>
+                          <td>${fmt(r.balance, cur)}</td>`;
+          frag.appendChild(tr);
+        });
+        tb.appendChild(frag);
+      }
+
+      // save last schedule for CSV
+      window.__lastSchedule = { rows: sch.rows, cur };
+    }
+
+    function toggleSchedule(force){
+      const card = $('#loan-table-card');
+      state.showSchedule = force != null ? !!force : !state.showSchedule;
+      card.style.display = state.showSchedule ? 'block' : 'none';
+      $('#btn-loan-toggle').textContent = state.showSchedule ? 'Скрыть график' : 'Показать график';
+      if(state.showSchedule){ calcLoan(); }
+    }
+
+    function exportCSV(){
+      const data = window.__lastSchedule; if(!data){ calcLoan(); }
+      const rows = (window.__lastSchedule||{}).rows || [];
+      const cur = (window.__lastSchedule||{}).cur || $('#currency').value;
+      const header = ['Месяц','Платёж','Основной долг','Проценты','Остаток'].join(',');
+      const lines = rows.map(r => [r.month, r.payment.toFixed(2), r.principal.toFixed(2), r.interest.toFixed(2), r.balance.toFixed(2)].join(','));
+      const csv = [header, ...lines].join('\n');
+      const blob = new Blob(["\uFEFF"+csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='график_платежей.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    function calcDeposit(){
+      const cur = $('#currency').value;
+      const P = parseNum($('#dep-initial').value);
+      const rate = parseNum($('#dep-rate').value);
+      const years = parseNum($('#dep-years').value);
+      const monthly = parseNum($('#dep-monthly').value);
+      const comp = $('#dep-comp').value;
+      const months = Math.round(years*12);
+      const d = futureValue({P, annualRate: rate, months, monthlyContribution: monthly, compound: comp});
+      $('#dep-kpi-invested').textContent = fmt(d.invested, cur);
+      $('#dep-kpi-profit').textContent = fmt(d.profit, cur);
+      $('#dep-kpi-fv').textContent = fmt(d.FV, cur);
+    }
+
+    // Tabs
+    $('#tab-loan').addEventListener('click', () => { $('#tab-loan').classList.add('active'); $('#tab-dep').classList.remove('active'); $('#panel-loan').hidden=false; $('#panel-dep').hidden=true; });
+    $('#tab-dep').addEventListener('click', () => { $('#tab-dep').classList.add('active'); $('#tab-loan').classList.remove('active'); $('#panel-dep').hidden=false; $('#panel-loan').hidden=true; });
+
+    // Buttons
+    $('#btn-loan-calc').addEventListener('click', calcLoan);
+    $('#btn-loan-toggle').addEventListener('click', () => toggleSchedule());
+    $('#btn-loan-csv').addEventListener('click', exportCSV);
+    $('#btn-dep-calc').addEventListener('click', calcDeposit);
+
+    // Auto-init
+    const isMobile = matchMedia('(max-width: 860px)').matches; // скрыть график по умолчанию на мобиле
+    toggleSchedule(!isMobile && false); // false = скрыт на мобиле, скрыт и на десктопе по умолчанию; нажмёшь — покажет
+    calcLoan();
+    calcDeposit();
+  </script>
+</body>
+</html>

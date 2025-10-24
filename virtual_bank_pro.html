@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ky">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VirtualBank — Санариптик лаборатория</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --brand:#1d4ed8;
+      --brand-2:#2563eb;
+      --accent:#fbbf24;
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --border:#e5e7eb;
+      --card:#ffffff;
+      --radius:14px;
+      --container:1200px;
+    }
+
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0; font-family:"Montserrat",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; color:var(--text); background:var(--bg)}
+    img{max-width:100%; height:auto; display:block}
+    a{text-decoration:none; color:inherit}
+    .container{max-width:var(--container); margin-inline:auto; padding-inline:15px}
+
+    .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:0 18px; border-radius:12px; border:1px solid var(--border); font-weight:700; cursor:pointer; transition:background .2s ease, color .2s ease, transform .08s ease}
+    .btn:active{transform:translateY(1px)}
+    .btn--primary{background:linear-gradient(180deg,var(--brand-2),var(--brand)); color:#fff; border-color:transparent}
+    .btn--primary:hover{filter:brightness(1.03)}
+    .btn--ghost{background:#f8fafc; color:var(--text)}
+    .btn--ghost:hover{background:#f1f5f9}
+
+    header{position:sticky; top:0; z-index:90; border-bottom:1px solid transparent; transition:background .25s ease, border-color .25s ease}
+    header.is-scrolled{background:rgba(255,255,255,.96); backdrop-filter:blur(8px); border-color:var(--border)}
+    .nav{height:72px; display:flex; align-items:center; justify-content:space-between; gap:12px}
+    .logo{display:flex; align-items:center; gap:10px; font-weight:800; font-size:clamp(18px,2.2vw,24px); letter-spacing:.2px}
+    .logo img{width:36px; height:36px; border-radius:10px}
+    .nav__links{display:flex; align-items:center; gap:clamp(12px,2.4vw,32px)}
+    .nav__links a{position:relative; padding:8px 0}
+    .nav__links a.active{color:var(--brand)}
+    .nav__links a.active::after{content:""; position:absolute; left:0; right:0; bottom:-10px; height:3px; background:var(--brand); border-radius:999px}
+    .nav__actions{display:flex; gap:10px; align-items:center}
+
+    /* Бургер */
+    .burger{display:none; width:44px; height:44px; border:1px solid var(--border); border-radius:12px; background:#ffffff; align-items:center; justify-content:center; cursor:pointer; position:relative; transition:.2s background,.2s border-color}
+    .burger span{position:absolute; width:22px; height:2px; background:var(--brand); border-radius:2px; transition:.3s ease}
+    .burger span:nth-child(1){top:14px}
+    .burger span:nth-child(2){top:21px}
+    .burger span:nth-child(3){top:28px}
+    .burger.is-open span:nth-child(1){transform:rotate(45deg); top:21px}
+    .burger.is-open span:nth-child(2){opacity:0}
+    .burger.is-open span:nth-child(3){transform:rotate(-45deg); top:21px}
+
+    .overlay{position:fixed; inset:0; background:rgba(15,23,42,.35); opacity:0; visibility:hidden; transition:opacity .25s ease, visibility .25s ease; z-index:80}
+    .overlay.is-open{opacity:1; visibility:visible}
+
+    .drawer{position:fixed; inset:72px 0 auto 0; background:#fff; border-bottom:1px solid var(--border); transform:translateY(-12px); opacity:0; visibility:hidden; transition:transform .25s ease, opacity .25s ease, visibility .25s ease; z-index:85}
+    .drawer.is-open{transform:translateY(0); opacity:1; visibility:visible}
+    .drawer .container{padding-block:12px}
+    .drawer__links{display:grid; gap:8px}
+    .drawer__links a{padding:12px 8px; border-radius:10px}
+    .drawer__links a:hover{background:#f1f5f9}
+
+    .hero{position:relative; overflow:hidden; text-align:center}
+    .hero::before{content:""; position:absolute; inset:0; background:radial-gradient(600px 260px at 18% 22%, #e0f2ff 0%, transparent 70%), radial-gradient(700px 280px at 82% 70%, #dbeafe 0%, transparent 70%), linear-gradient(180deg,#eff6ff 0%, #ffffff 55%); z-index:-1}
+    .hero__inner{padding:clamp(60px,9vw,120px) 0}
+    .hero h1{font-size:clamp(28px,6vw,50px); font-weight:800; line-height:1.15; margin:0 0 8px}
+    .hero h2{font-size:clamp(18px,3vw,26px); color:var(--brand); margin:0 0 16px}
+    .hero p{font-size:clamp(14px,2vw,18px); color:var(--muted); max-width:720px; margin:0 auto 22px}
+    .hero .buttons{display:flex; justify-content:center; flex-wrap:wrap; gap:12px}
+
+    .features{padding:clamp(20px,4vw,36px) 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border)}
+    .features__grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px}
+    .feature{display:flex; align-items:center; justify-content:center; gap:10px; padding:14px; background:#fff; border:1px solid var(--border); border-radius:var(--radius)}
+
+    .products{padding:clamp(28px,6vw,56px) 0}
+    .section-title{text-align:center; font-size:clamp(22px,3vw,30px); margin-bottom:22px; color:var(--brand-2)}
+    .product-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; transition:transform .12s ease, background .15s ease}
+    .card:hover{background:#f9fafb; transform:translateY(-2px)}
+    .product-media{display:flex; align-items:center; gap:12px; margin-bottom:8px}
+    .product-media img{width:60px; height:60px; border-radius:12px}
+    .product-card h3{margin:0 0 6px; font-size:18px}
+    .product-card p{margin:0 0 12px; color:var(--muted)}
+
+    .info{padding:clamp(28px,6vw,56px) 0; border-top:1px solid var(--border)}
+    .info__grid{display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:center}
+    .info__grid img{border-radius:12px}
+
+    footer{background:#f8fafc; border-top:1px solid var(--border); color:#0f172a}
+    .footer__inner{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:18px 15px}
+
+    @media (max-width:1024px){.nav__actions{display:none}.info__grid{grid-template-columns:1fr}}
+    @media (max-width:768px){.nav__links{display:none}.burger{display:inline-flex}.drawer{inset:64px 0 auto 0}.btn{width:100%}.hero h1{font-size:32px}.hero p{font-size:15px}}
+    @media (max-width:480px){.logo{font-size:18px}.hero__inner{padding:44px 0}.section-title{font-size:20px}.product-media img{width:52px;height:52px}}
+  </style>
+</head>
+<body>
+  <div class="overlay" id="overlay" hidden></div>
+  <header id="siteHeader">
+    <div class="container nav">
+      <div class="logo"><img src="./images/alamnyk.png" alt="logo" loading="lazy"/>VirtualBank</div>
+      <nav class="nav__links" aria-label="Негизги меню">
+        <a href="#products">Башкы бет</a>
+        <a href="#calc">Банк тууралуу</a>
+        <a href="#about">Тестирлөө</a>
+        <a href="#contacts">Баалоо критериялары</a>
+      </nav>
+      <div class="nav__actions"><a href="https://drive.google.com/drive/folders/1DE1bHKdNf4LzhmSjI6gtr5tRvinqCNpe" class="btn btn--primary">Кирүү</a></div>
+      <button class="burger" id="burger" aria-controls="drawer" aria-expanded="false" aria-label="Меню">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="drawer" id="drawer" role="menu" aria-label="Мобилдик меню">
+      <div class="container">
+        <div class="drawer__links">
+          <a href="#products">Башкы бет</a>
+          <a href="#calc">Банк тууралуу</a>
+          <a href="#about">Тестирлөө</a>
+          <a href="#contacts">Баалоо критериялары</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero" id="home">
+    <div class="container hero__inner">
+      <h1>Банк ишинин санариптик лабораториясы</h1>
+      <h2>Цифровая лаборатория банковского дела</h2>
+      <p>Акча которуу • Аманаттар • Насыялоо • Онлайн-отчёттуулук • Автоматтык баалоо</p>
+      <div class="buttons"><a href="#products" class="btn btn--primary">Баштоо</a><a href="#about" class="btn btn--ghost">Толук маалымат</a></div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="container features__grid">
+      <div class="feature">💳 Ыңгайлуу интерфейс</div>
+      <div class="feature">💼 Студенттер жана окутуучулар үчүн</div>
+      <div class="feature">🌍 24/7 жеткиликтүү</div>
+      <div class="feature">💰 Автоматтык текшерүү</div>
+    </div>
+  </section>
+
+  <section id="products" class="products">
+    <div class="container">
+      <h2 class="section-title">Банк операциялары</h2>
+      <div class="product-list">
+        <article class="card product-card">
+          <div class="product-media"><img src="./images/transaksia.png" alt="Акча которуулар" loading="lazy"><h3>Акча которуулар</h3></div>
+          <p>Ички жана банктар аралык которуулар.</p>
+          <a class="btn btn--primary" href="https://docs.google.com/spreadsheets/d/1_bHbZ5bfqGCO1uq2eo78ouk1M_5KxInG/edit?usp=sharing&ouid=105284100967282465331&rtpof=true&sd=true">Жүктөө</a>
+        </article>
+        <article class="card product-card">
+          <div class="product-media"><img src="./images/monety.png" alt="Аманат ачуу" loading="lazy"><h3>Аманат ачуу</h3></div>
+          <p>Аманаттарды каттоо тартиби.</p>
+          <a class="btn btn--primary" href="https://drive.google.com/drive/folders/1SQuB2pXduWArdEFkrxfZYbg_RN041k72?usp=sharing">Жүктөө</a>
+        </article>
+        <article class="card product-card">
+          <div class="product-media"><img src="./images/credit.png" alt="Насыялоо" loading="lazy"><h3>Насыялоо</h3></div>
+          <p>Насыяны эсептөө жана каттоо.</p>
+          <a class="btn btn--primary" href="https://drive.google.com/drive/folders/1INX61zNsg1xaSyNNRDO1WjpEYdlG_XtV?usp=sharing">Жүктөө</a>
+        </article>
+        <article class="card product-card">
+          <div class="product-media"><img src="./images/kassaoperation.png" alt="Кассалык операциялар" loading="lazy"><h3>Кассалык операциялар жана отчёттуулук</h3></div>
+          <p>Кассалык документтер менен иштөө жана отчетторду түзүү.</p>
+          <a class="btn btn--primary" href="https://drive.google.com/drive/folders/1eAUESWB9OHY7ByQej8yEpPmy3cb9izJD?usp=sharing">Жүктөө</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="info">
+    <div class="container info__grid">
+      <div>
+        <h2 class="section-title">К. Ш. Токтомаматов атындагы Эл аралык университет</h2>
+        <p style="color:var(--muted); margin:10px 0 16px">Экономика жана каржы кафедрасы. Окутуу, практикалык тапшырмалар жана санариптик лаборатория аркылуу студенттерге банк операцияларын үйрөтүү.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap"><a class="btn btn--ghost" href="pages/virtual_bank_currency_rates_converter_html.html">Конвертер</a><a class="btn btn--ghost" href="pages/credit_deposit_calculator.html">Эсептөө</a><a class="btn btn--primary" href="credit_deposit_calculator.html">Насыя эсептөө</a> <a class="btn btn--primary" href="https://docs.google.com/spreadsheets/d/1F3q3C5stI3AqXlslTU2ItV3kOrGRGSdk/edit?usp=sharing&ouid=105284100967282465331&rtpof=true&sd=true">Аманат эсептөө</a></div>
+      </div>
+      <div><img src="./images/university.png" alt="University иллюстрация" loading="lazy" /></div>
+    </div>
+  </section>
+
+  <footer id="contacts">
+    <div class="container footer__inner">
+      <div><strong>VirtualBank</strong> © 2025 Баардык укуктар корголгон</div>
+      <div class="footer__right"><a href="mailto:fincred.inu@gmail.com" style="margin-right: 20px;">fincrеd.inu@gmail.com</a><a href="#">Сурамжылоо</a></div>
+    </div>
+  </footer>
+
+  <script>
+    const header=document.getElementById('siteHeader');window.addEventListener('scroll',()=>{window.scrollY>4?header.classList.add('is-scrolled'):header.classList.remove('is-scrolled')});
+    const burger=document.getElementById('burger'),drawer=document.getElementById('drawer'),overlay=document.getElementById('overlay');
+    function setDrawer(o){drawer.classList.toggle('is-open',o),overlay.classList.toggle('is-open',o),overlay.hidden=!o,burger.classList.toggle('is-open',o),burger.setAttribute('aria-expanded',String(o)),document.body.classList.toggle('no-scroll',o)}
+    burger?.addEventListener('click',()=>setDrawer(!drawer.classList.contains('is-open'))),overlay?.addEventListener('click',()=>setDrawer(!1)),window.addEventListener('keydown',e=>{"Escape"===e.key&&setDrawer(!1)}),drawer.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setDrawer(!1)));
+  </script>
+</body>
+</html>
